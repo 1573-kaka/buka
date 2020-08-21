@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:aop="http://www.springframework.org/schema/aop"
+	   xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:mvc="http://www.springframework.org/schema/mvc"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!--包扫描，注解支持-->
+	<context:component-scan base-package="cn.imust.web"></context:component-scan>
+
+	<!--配置视图解析器-->
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/pages/"></property>
+		<property name="suffix" value=".jsp"></property>
+	</bean>
+
+	<!--处理异常-->
+	<bean class="cn.imust.web.exceptions.CustomExceptionResolver"></bean>
+
+	<!--日期格式转换-->
+	<bean class="org.springframework.context.support.ConversionServiceFactoryBean" id="conversionService">
+		<property name="converters">
+			<set>
+				<bean class="cn.imust.web.converter.StringToDateConverter"></bean>
+			</set>
+		</property>
+	</bean>
+
+	<!--mvc annotaton-->
+	<mvc:annotation-driven conversion-service="conversionService"></mvc:annotation-driven>
+
+	<!--开启AOP注解支持-->
+	<aop:aspectj-autoproxy></aop:aspectj-autoproxy>
+
+	<dubbo:application name="logistics_web_manager">
+		<dubbo:parameter key="qos.enable" value="false"></dubbo:parameter>
+	</dubbo:application>
+
+	<dubbo:registry address="zookeeper://127.0.0.1:2181" ></dubbo:registry>
+
+	<dubbo:annotation package="cn.imust.web"></dubbo:annotation>
+
+	<dubbo:consumer check="false"></dubbo:consumer>
+
+	<!-- id 的值是固定的-->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!-- 设置上传文件的最大尺寸为 5MB -->
+		<property name="maxUploadSize">
+			<value>5242880</value>
+		</property>
+	</bean>
+</beans>

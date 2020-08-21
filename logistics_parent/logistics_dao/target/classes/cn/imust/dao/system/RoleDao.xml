@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.imust.dao.system.RoleDao">
+    <resultMap id="BaseResultMap" type="role">
+        <id column="role_id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="remark" property="remark"/>
+        <result column="order_no" property="orderNo"/>
+        <result column="company_id" property="companyId"/>
+        <result column="company_name" property="companyName"/>
+    </resultMap>
+
+    <select id="findAll" parameterType="string" resultMap="BaseResultMap">
+        select * from pe_role where company_id=#{companyId}
+    </select>
+
+    <select id="findById" parameterType="string" resultMap="BaseResultMap">
+        select * from pe_role where role_id = #{id}
+    </select>
+
+    <delete id="delete" parameterType="string">
+        delete from pe_role where role_id = #{id}
+    </delete>
+
+    <insert id="save" parameterType="role">
+        insert into pe_role (role_id, name, remark, order_no,company_id, company_name)
+        values (#{id}, #{name}, #{remark}, #{orderNo}, #{companyId}, #{companyName})
+    </insert>
+
+    <update id="update" parameterType="role">
+        update pe_role
+        set name = #{name},
+          remark = #{remark},
+          order_no = #{orderNo}
+        where role_id = #{id}
+    </update>
+
+    <select id="findByUserId" parameterType="string" resultMap="BaseResultMap">
+        SELECT pe_role.* FROM pe_role_user
+            INNER JOIN pe_role ON pe_role_user.role_id = pe_role.role_id
+            WHERE user_id = #{id}
+    </select>
+
+    <delete id="deleteByUserId" parameterType="string">
+        delete from pe_role_user where user_id = #{userid}
+    </delete>
+
+    <insert id="insertUserRole" parameterType="map">
+        insert into pe_role_user (user_id, role_id) values (#{userid}, #{roleId})
+    </insert>
+</mapper>

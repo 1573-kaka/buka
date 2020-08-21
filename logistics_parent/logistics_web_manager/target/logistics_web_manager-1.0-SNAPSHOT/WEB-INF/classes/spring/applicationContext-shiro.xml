@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <description>Shiro与Spring整合</description>
+
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <!-- 引用自定义的realm -->
+        <property name="realm" ref="authRealm"/>
+    </bean>
+
+    <!-- 自定义Realm域的编写 -->
+    <bean id="authRealm" class="cn.imust.web.shiro.AuthRealm">
+        <!-- 注入自定义的密码比较器 -->
+        <property name="credentialsMatcher" ref="customerCredentialsMatcher" ></property>
+    </bean>
+
+    <!-- 自定义的密码比较器 -->
+    <bean id="customerCredentialsMatcher" class="cn.imust.web.shiro.CustomCredentialsMatcher"></bean>
+
+    <!-- filter-name这个名字的值来自于web.xml中filter的名字 -->
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <property name="securityManager" ref="securityManager"/>
+        <!-- 必须登录跳转的页面 -->
+        <property name="loginUrl" value="/login.jsp"></property>
+        <!-- 没有权限是跳转的页面 -->
+        <property name="unauthorizedUrl" value="/unauthorized.jsp"></property>
+
+        <property name="filterChainDefinitions">
+            <!-- /**代表下面的多级目录也过滤 -->
+            <value>
+                <!--perms必须要给权限-->
+                /company/list.do = perms["企业管理"]
+                /module/list.do = perms["模块管理"]
+
+                /system/dept/list.do = perms["部门管理"]
+                /system/log/list.do = perms["日志管理"]
+                /system/role/list.do = perms["角色管理"]
+                /system/user/list.do = perms["用户管理"]
+
+                <!--anon匿名登录-->
+                /index.jsp* = anon
+                /login.jsp* = anon
+                /login* = anon
+                /logout* = anon
+                /css/** = anon
+                /img/** = anon
+                /plugins/** = anon
+                /make/** = anon
+
+                <!--authc必须要登录-->
+                /** = authc
+                /*.* = authc
+            </value>
+        </property>
+    </bean>
+
+    <!-- 保证实现了Shiro内部lifecycle函数的bean执行 -->
+    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
+
+    <!-- 生成代理，通过代理进行控制 -->
+    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"
+          depends-on="lifecycleBeanPostProcessor">
+        <property name="proxyTargetClass" value="true"/>
+    </bean>
+
+    <!-- 安全管理器 -->
+    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+        <property name="securityManager" ref="securityManager"/>
+    </bean>
+
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+
+</beans>

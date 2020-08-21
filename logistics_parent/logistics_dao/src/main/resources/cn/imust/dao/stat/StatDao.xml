@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.imust.dao.stat.StatDao">
+
+    <select id="getFactoryData" parameterType="string" resultType="map">
+        SELECT factory_name AS name, SUM(amount) AS value
+        FROM co_contract_product
+        WHERE company_id = #{companyId}
+        GROUP BY factory_name
+    </select>
+
+    <select id="getSellData" parameterType="string" resultType="map">
+        SELECT product_no AS name, SUM(amount) AS value
+        FROM co_contract_product
+        WHERE company_id = #{companyId}
+	    GROUP BY product_no
+	    ORDER BY SUM(amount) DESC
+	    LIMIT 15
+    </select>
+
+    <select id="getOnlineData" parameterType="string" resultType="map">
+        SELECT st_online_info.A1 AS name, IFNULL(st_sys_log1.value, 0) AS value
+        FROM st_online_info LEFT JOIN
+        (SELECT DATE_FORMAT(TIME, "%H") AS NAME, COUNT(*) AS VALUE
+        FROM st_sys_log
+        WHERE company_id = #{companyId}
+        GROUP BY DATE_FORMAT(TIME, "%H")) st_sys_log1
+        ON st_online_info.A1 = st_sys_log1.name
+    </select>
+
+    <select id="getMarketData" parameterType="string" resultType="map">
+        SELECT product_no AS NAME, price AS VALUE
+        FROM co_export_product
+        WHERE company_id = #{companyId}
+        ORDER BY price
+        LIMIT 10
+    </select>
+
+    <select id="getVisitData" parameterType="string" resultType="map">
+        SELECT user_name AS name, COUNT(ip) AS value
+        FROM st_sys_log
+        WHERE company_id = #{companyId}
+        GROUP BY user_name
+        ORDER BY COUNT(ip) DESC
+        LIMIT 10
+    </select>
+
+    <select id="getIpOnline" parameterType="string" resultType="map">
+        SELECT ip AS name,COUNT(ip) AS value FROM st_sys_log where company_id = #{companyId}  GROUP BY ip ORDER BY COUNT(ip) DESC LIMIT 15;
+    </select>
+
+    <select id="getPriceOnline" resultType="map">
+        SELECT name,price AS value
+        FROM co_goods
+        ORDER BY price DESC LIMIT 10;
+    </select>
+</mapper>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.imust.dao.system.UserDao">
+    <resultMap id="BaseResultMap" type="user">
+        <id column="user_id" property="id"/>
+        <result column="dept_id" property="deptId"/>
+        <result column="email" property="email"/>
+        <result column="user_name" property="userName"/>
+        <result column="password" property="password"/>
+        <result column="state" property="state"/>
+        <result column="company_id" property="companyId"/>
+        <result column="company_name" property="companyName"/>
+        <result column="dept_name" property="deptName"/>
+        <result column="manager_id" property="managerId"/>
+        <result column="join_date" property="joinDate"/>
+        <result column="salary" property="salary"/>
+        <result column="birthday" property="birthday"/>
+        <result column="gender" property="gender"/>
+        <result column="station" property="station"/>
+        <result column="telephone" property="telephone"/>
+        <result column="degree" property="degree"/>
+        <result column="remark" property="remark"/>
+        <result column="order_no" property="orderNo"/>
+        <result column="openid" property="openid"/>
+    </resultMap>
+
+    <!--根据企业id查询全部-->
+    <select id="findAll" parameterType="string" resultMap="BaseResultMap">
+      select * from pe_user where company_id=#{companyId}
+    </select>
+
+    <!--根据id查询-->
+    <select id="findById" parameterType="string" resultMap="BaseResultMap">
+      select  * from pe_user where user_id = #{userId}
+    </select>
+
+    <!--根据id删除-->
+    <delete id="delete" parameterType="string">
+        delete from pe_user where user_id = #{id}
+    </delete>
+
+    <!--保存-->
+    <insert id="save" parameterType="user">
+        insert into pe_user (user_id
+        <if test="deptId!=null and deptId!=''">
+            , dept_id
+        </if>
+        , email, user_name, password, state, company_id,
+        company_name, dept_name, manager_id, join_date, salary, birthday,
+        gender, station, telephone, degree, remark, order_no,openid)
+        values (#{id}
+        <if test="deptId!=null and deptId!=''">
+            , #{deptId}
+        </if>
+        , #{email}, #{userName}, #{password}, #{state}, #{companyId},
+        #{companyName}, #{deptName}, #{managerId}, #{joinDate}, #{salary}, #{birthday},
+        #{gender}, #{station}, #{telephone}, #{degree}, #{remark}, #{orderNo},#{openid})
+    </insert>
+
+    <!--更新-->
+    <update id="update" parameterType="user">
+        update pe_user
+        set dept_id = #{deptId},
+        email = #{email},
+        user_name = #{userName},
+        password = #{password},
+        state = #{state},
+        dept_name = #{deptName},
+        manager_id = #{managerId},
+        join_date = #{joinDate},
+        salary = #{salary},
+        birthday = #{birthday},
+        gender = #{gender},
+        station = #{station},
+        telephone = #{telephone},
+        degree = #{degree},
+        remark = #{remark},
+        order_no = #{orderNo},
+        openid=#{openid}
+        where user_id = #{id}
+    </update>
+
+    <select id="findByEmail" parameterType="string" resultMap="BaseResultMap">
+        select * from pe_user where email = #{email}
+    </select>
+
+    <select id="findByOpenid" parameterType="String"  resultMap="BaseResultMap">
+        select * from pe_user where openid=#{openid}
+    </select>
+
+    <update id="updateOpenId">
+        update pe_user set openid=#{openId} where email=#{email}
+    </update>
+</mapper>
